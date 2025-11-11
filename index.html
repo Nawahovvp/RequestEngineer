@@ -2124,7 +2124,6 @@
       body.dark-mode #parts #imageModalContent .material-row .requisition-button:hover, body.dark-mode #images #imageModalContentImages .material-row .requisition-button-images:hover {
         background: linear-gradient(135deg, #16a085, #1abc9c);
       }
-
       /* Gallery Styles for #images tab */
       #images .gallery-container-images {
         display: grid;
@@ -3699,7 +3698,7 @@
       itemsPerPageSelectImages.addEventListener("change", () => {
         itemsPerPageImages = parseInt(itemsPerPageSelectImages.value, 10);
         currentPageImages = 1;
-        renderGalleryDataImages();
+        renderTableDataImages();
         renderPaginationImages(allDataImages.length);
       });
       retryButtonImages.addEventListener("click", () => {
@@ -3802,9 +3801,9 @@
           }
           const thumbnailSrc = row.id ? `https://drive.google.com/thumbnail?id=${row.id}&sz=w300-h300` : '';
           galleryItem.innerHTML = `
-            <img src="${thumbnailSrc}" alt="${row.Description || 'Image'}" class="gallery-thumbnail" 
-                 style="color: ${textColor}; font-weight: ${fontWeight};" 
-                 onclick="showImageModalImages(${JSON.stringify(row).replace(/"/g, '&quot;')})" 
+            <img src="${thumbnailSrc}" alt="${row.Description || 'Image'}" class="gallery-thumbnail"
+                 style="color: ${textColor}; font-weight: ${fontWeight};"
+                 onclick="showImageModalImages(${JSON.stringify(row).replace(/"/g, '&quot;')})"
                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='; this.onclick=null;">
             <div class="gallery-info">
               <div class="gallery-material" style="color: ${textColor}; font-weight: ${fontWeight};">${row.Material || ''}</div>
@@ -3851,7 +3850,7 @@
       }
       function changePageImages(page) {
         currentPageImages = page;
-        renderGalleryDataImages(currentFilteredDataImages);
+        renderTableDataImages();
         renderPaginationImages(currentFilteredDataImages.length);
       }
       function renderTableDataImages() {
@@ -3882,7 +3881,7 @@
           });
         }
         currentPageImages = 1;
-        renderGalleryDataImages(currentFilteredDataImages);
+        renderTableDataImages();
         renderPaginationImages(currentFilteredDataImages.length);
       });
       searchInputImages.addEventListener("keypress", (e) => {
@@ -3893,13 +3892,13 @@
       });
       firstPageButtonImages.addEventListener("click", () => {
         currentPageImages = 1;
-        renderGalleryDataImages(currentFilteredDataImages);
+        renderTableDataImages();
         renderPaginationImages(currentFilteredDataImages.length);
       });
       prevPageButtonImages.addEventListener("click", () => {
         if (currentPageImages > 1) {
           currentPageImages--;
-          renderGalleryDataImages(currentFilteredDataImages);
+          renderTableDataImages();
           renderPaginationImages(currentFilteredDataImages.length);
         }
       });
@@ -3907,14 +3906,14 @@
         const totalPages = Math.ceil(currentFilteredDataImages.length / itemsPerPageImages);
         if (currentPageImages < totalPages) {
           currentPageImages++;
-          renderGalleryDataImages(currentFilteredDataImages);
+          renderTableDataImages();
           renderPaginationImages(currentFilteredDataImages.length);
         }
       });
       lastPageButtonImages.addEventListener("click", () => {
         const totalPages = Math.ceil(currentFilteredDataImages.length / itemsPerPageImages);
         currentPageImages = totalPages;
-        renderGalleryDataImages(currentFilteredDataImages);
+        renderTableDataImages();
         renderPaginationImages(currentFilteredDataImages.length);
       });
       async function loadImagesData() {
@@ -3936,7 +3935,8 @@
           }
           allDataImages = data.filter(row => row.id); // Filter only rows with 'id' data
           currentFilteredDataImages = allDataImages;
-          renderGalleryDataImages(allDataImages);
+          currentPageImages = 1;
+          renderTableDataImages();
           renderPaginationImages(allDataImages.length);
           document.getElementById("loading").style.display = "none";
         } catch (error) {
