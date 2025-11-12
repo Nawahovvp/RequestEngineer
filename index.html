@@ -538,10 +538,14 @@
         display: flex;
         justify-content: flex-start;
         margin-bottom: 15px;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
       }
-      #parts #searchInput, #images #searchInputImages, #today #searchInputToday {
-        width: 100%;
-        max-width: 300px;
+      #parts #searchInput1, #parts #searchInput2, #images #searchInputImages1, #images #searchInputImages2, #today #searchInputToday {
+        flex: 1;
+        min-width: 150px;
+        max-width: 250px;
         padding: 10px;
         border-radius: 6px;
         border: 1px solid #e0e0e0;
@@ -549,17 +553,17 @@
         transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
         background-color: white;
       }
-      #parts #searchInput:focus, #images #searchInputImages:focus, #today #searchInputToday:focus {
+      #parts #searchInput1:focus, #parts #searchInput2:focus, #images #searchInputImages1:focus, #images #searchInputImages2:focus, #today #searchInputToday:focus {
         border-color: #2196f3;
         box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
         outline: none;
       }
-      body.dark-mode #parts #searchInput, body.dark-mode #images #searchInputImages, body.dark-mode #today #searchInputToday {
+      body.dark-mode #parts #searchInput1, body.dark-mode #parts #searchInput2, body.dark-mode #images #searchInputImages1, body.dark-mode #images #searchInputImages2, body.dark-mode #today #searchInputToday {
         background-color: #34495e;
         border-color: #555;
         color: #ecf0f1;
       }
-      body.dark-mode #parts #searchInput:focus, body.dark-mode #images #searchInputImages:focus, body.dark-mode #today #searchInputToday:focus {
+      body.dark-mode #parts #searchInput1:focus, body.dark-mode #parts #searchInput2:focus, body.dark-mode #images #searchInputImages1:focus, body.dark-mode #images #searchInputImages2:focus, body.dark-mode #today #searchInputToday:focus {
         border-color: #1abc9c;
         box-shadow: 0 0 5px rgba(26, 188, 156, 0.3);
       }
@@ -575,6 +579,7 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         margin-left: 10px;
+        flex-shrink: 0;
       }
       #parts .refresh-button:hover, #images .refresh-button-images:hover {
         background: linear-gradient(135deg, #1976d2, #1565c0);
@@ -1941,9 +1946,14 @@
         #parts table, #images table, #today table {
           min-width: 600px; /* Reduced min-width for mobile */
         }
-        #parts #searchInput, #images #searchInputImages, #today #searchInputToday {
+        #parts #searchInput1, #parts #searchInput2, #images #searchInputImages1, #images #searchInputImages2, #today #searchInputToday {
           font-size: 14px;
           max-width: 100%; /* Full width on mobile */
+          min-width: 100px;
+        }
+        #parts #searchContainer, #images #searchContainerImages {
+          flex-direction: column;
+          gap: 5px;
         }
         .container {
           padding: 10px; /* Smaller container padding */
@@ -2282,7 +2292,8 @@
         </div>
         <div id="parts" class="tab-content active">
           <div id="searchContainer">
-            <input type="text" id="searchInput" placeholder="ค้นหา Code, Description...." />
+            <input type="text" id="searchInput1" placeholder="ค้นหา Material/Code" />
+            <input type="text" id="searchInput2" placeholder="ค้นหา Description/หมายเหตุ" />
             <button id="searchButton" class="refresh-button">
               <i class="fas fa-search"></i>
             </button>
@@ -2341,7 +2352,8 @@
         </div>
         <div id="images" class="tab-content">
           <div id="searchContainerImages">
-            <input type="text" id="searchInputImages" placeholder="ค้นหา Code, Description...." />
+            <input type="text" id="searchInputImages1" placeholder="ค้นหา Material/Code" />
+            <input type="text" id="searchInputImages2" placeholder="ค้นหา Description/หมายเหตุ" />
             <button id="searchButtonImages" class="refresh-button-images">
               <i class="fas fa-search"></i>
             </button>
@@ -2631,7 +2643,7 @@
             checkLoginStatus();
             // Focus on search input after login
             setTimeout(() => {
-              const searchInput = document.getElementById('searchInput');
+              const searchInput = document.getElementById('searchInput1');
               if (searchInput) searchInput.focus();
             }, 500);
           } else {
@@ -2740,7 +2752,8 @@
       const sheetID = "1nbhLKxs7NldWo_y0s4qZ8rlpIfyyGkR_Dqq8INmhYlw";
       const sheetName = "MainSap";
       const url = `https://opensheet.elk.sh/${sheetID}/${sheetName}`;
-      const searchInput = document.getElementById("searchInput");
+      const searchInput1 = document.getElementById("searchInput1");
+      const searchInput2 = document.getElementById("searchInput2");
       const searchButton = document.getElementById("searchButton");
       const tableBody = document.querySelector("#data-table tbody");
       const pagination = document.getElementById("pagination");
@@ -2753,6 +2766,7 @@
       const errorContainer = document.getElementById("error-container");
       const retryButton = document.getElementById("retry-button");
       let allData = [];
+      let tempFilteredData = [];
       let currentPage = 1;
       let itemsPerPage = 10;
       let currentFilteredData = [];
@@ -3581,36 +3595,48 @@
         const endIndex = startIndex + itemsPerPage;
         renderTable(currentFilteredData.slice(startIndex, endIndex));
       }
-      searchButton.addEventListener("click", () => {
-        const keyword = searchInput.value.trim().toLowerCase();
-        if (!keyword) {
-          Swal.fire({
-            icon: "warning",
-            title: "กรุณากรอกคำค้นหา",
-            text: "โปรดใส่ข้อความที่ต้องการค้นหาก่อนกดปุ่มค้นหา!",
-            confirmButtonText: "ตกลง",
-          });
-          currentFilteredData = allData;
-        } else {
-          currentFilteredData = allData.filter((row) => {
+      function applyFilters() {
+        const keyword1 = searchInput1.value.trim().toLowerCase();
+        let filtered1 = allData;
+        if (keyword1) {
+          filtered1 = allData.filter((row) => {
             return (
-              (row["Material"] || "").toLowerCase().includes(keyword) ||
-              (row["Description"] || "").toLowerCase().includes(keyword) ||
-              (row["Rebuilt"] || "").toLowerCase().includes(keyword) ||
-              (row["Product"] || "").toLowerCase().includes(keyword) ||
-              (row["OCRTAXT"] || "").toLowerCase().includes(keyword) ||
-              (row["หมายเหตุ"] || "").toLowerCase().includes(keyword)
+              (row["Material"] || "").toLowerCase().includes(keyword1) ||
+              (row["Product"] || "").toLowerCase().includes(keyword1)
             );
           });
         }
+        tempFilteredData = filtered1;
+        const keyword2 = searchInput2.value.trim().toLowerCase();
+        let filtered2 = tempFilteredData;
+        if (keyword2) {
+          filtered2 = tempFilteredData.filter((row) => {
+            return (
+              (row["Description"] || "").toLowerCase().includes(keyword2) ||
+              (row["หมายเหตุ"] || "").toLowerCase().includes(keyword2) ||
+              (row["Rebuilt"] || "").toLowerCase().includes(keyword2) ||
+              (row["OCRTAXT"] || "").toLowerCase().includes(keyword2)
+            );
+          });
+        }
+        currentFilteredData = filtered2;
         currentPage = 1;
         renderTableData();
         renderPagination(currentFilteredData.length);
-      });
-      searchInput.addEventListener("keypress", (e) => {
+      }
+      searchInput1.addEventListener("input", applyFilters);
+      searchInput2.addEventListener("input", applyFilters);
+      searchButton.addEventListener("click", applyFilters);
+      searchInput1.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
-          searchButton.click();
-          searchInput.blur();
+          applyFilters();
+          searchInput1.blur();
+        }
+      });
+      searchInput2.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          applyFilters();
+          searchInput2.blur();
         }
       });
       firstPageButton.addEventListener("click", () => {
@@ -3657,9 +3683,9 @@
             throw new Error("No data received or data is empty");
           }
           allData = data;
-          currentFilteredData = data;
-          renderTableData();
-          renderPagination(data.length);
+          tempFilteredData = [...data];
+          currentFilteredData = [...data];
+          applyFilters();
           document.getElementById("loading").style.display = "none";
         } catch (error) {
           console.error("Error loading data:", error);
@@ -3679,7 +3705,8 @@
         }
       }
       // Images tab script (updated for gallery)
-      const searchInputImages = document.getElementById("searchInputImages");
+      const searchInputImages1 = document.getElementById("searchInputImages1");
+      const searchInputImages2 = document.getElementById("searchInputImages2");
       const searchButtonImages = document.getElementById("searchButtonImages");
       const galleryContainer = document.getElementById("gallery-container-images");
       const paginationImages = document.getElementById("paginationImages");
@@ -3692,6 +3719,7 @@
       const errorContainerImages = document.getElementById("error-container-images");
       const retryButtonImages = document.getElementById("retry-button-images");
       let allDataImages = [];
+      let tempFilteredDataImages = [];
       let currentPageImages = 1;
       let itemsPerPageImages = 10;
       let currentFilteredDataImages = [];
@@ -3858,36 +3886,48 @@
         const endIndex = startIndex + itemsPerPageImages;
         renderGalleryDataImages(currentFilteredDataImages.slice(startIndex, endIndex));
       }
-      searchButtonImages.addEventListener("click", () => {
-        const keyword = searchInputImages.value.trim().toLowerCase();
-        if (!keyword) {
-          Swal.fire({
-            icon: "warning",
-            title: "กรุณากรอกคำค้นหา",
-            text: "โปรดใส่ข้อความที่ต้องการค้นหาก่อนกดปุ่มค้นหา!",
-            confirmButtonText: "ตกลง",
-          });
-          currentFilteredDataImages = allDataImages;
-        } else {
-          currentFilteredDataImages = allDataImages.filter((row) => {
+      function applyFiltersImages() {
+        const keyword1 = searchInputImages1.value.trim().toLowerCase();
+        let filtered1 = allDataImages;
+        if (keyword1) {
+          filtered1 = allDataImages.filter((row) => {
             return (
-              (row["Material"] || "").toLowerCase().includes(keyword) ||
-              (row["Description"] || "").toLowerCase().includes(keyword) ||
-              (row["Rebuilt"] || "").toLowerCase().includes(keyword) ||
-              (row["Product"] || "").toLowerCase().includes(keyword) ||
-              (row["OCRTAXT"] || "").toLowerCase().includes(keyword) ||
-              (row["หมายเหตุ"] || "").toLowerCase().includes(keyword)
+              (row["Material"] || "").toLowerCase().includes(keyword1) ||
+              (row["Product"] || "").toLowerCase().includes(keyword1)
             );
           });
         }
+        tempFilteredDataImages = filtered1;
+        const keyword2 = searchInputImages2.value.trim().toLowerCase();
+        let filtered2 = tempFilteredDataImages;
+        if (keyword2) {
+          filtered2 = tempFilteredDataImages.filter((row) => {
+            return (
+              (row["Description"] || "").toLowerCase().includes(keyword2) ||
+              (row["หมายเหตุ"] || "").toLowerCase().includes(keyword2) ||
+              (row["Rebuilt"] || "").toLowerCase().includes(keyword2) ||
+              (row["OCRTAXT"] || "").toLowerCase().includes(keyword2)
+            );
+          });
+        }
+        currentFilteredDataImages = filtered2;
         currentPageImages = 1;
         renderTableDataImages();
         renderPaginationImages(currentFilteredDataImages.length);
-      });
-      searchInputImages.addEventListener("keypress", (e) => {
+      }
+      searchInputImages1.addEventListener("input", applyFiltersImages);
+      searchInputImages2.addEventListener("input", applyFiltersImages);
+      searchButtonImages.addEventListener("click", applyFiltersImages);
+      searchInputImages1.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
-          searchButtonImages.click();
-          searchInputImages.blur();
+          applyFiltersImages();
+          searchInputImages1.blur();
+        }
+      });
+      searchInputImages2.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          applyFiltersImages();
+          searchInputImages2.blur();
         }
       });
       firstPageButtonImages.addEventListener("click", () => {
@@ -3934,10 +3974,9 @@
             throw new Error("No data received or data is empty");
           }
           allDataImages = data.filter(row => row.id); // Filter only rows with 'id' data
-          currentFilteredDataImages = allDataImages;
-          currentPageImages = 1;
-          renderTableDataImages();
-          renderPaginationImages(allDataImages.length);
+          tempFilteredDataImages = [...allDataImages];
+          currentFilteredDataImages = [...allDataImages];
+          applyFiltersImages();
           document.getElementById("loading").style.display = "none";
         } catch (error) {
           console.error("Error loading images data:", error);
