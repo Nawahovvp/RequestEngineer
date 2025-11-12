@@ -3599,24 +3599,20 @@
         const keyword1 = searchInput1.value.trim().toLowerCase();
         let filtered1 = allData;
         if (keyword1) {
+          // ค้นหาในทุกคอลัมน์สำหรับ Filter 1
           filtered1 = allData.filter((row) => {
-            return (
-              (row["Material"] || "").toLowerCase().includes(keyword1) ||
-              (row["Product"] || "").toLowerCase().includes(keyword1)
-            );
+            const searchFields = ["Material", "Description", "Product", "OCRTAXT", "หมายเหตุ", "Rebuilt", "วิภาวดี", "Unrestricted"];
+            return searchFields.some(field => (row[field] || "").toLowerCase().includes(keyword1));
           });
         }
         tempFilteredData = filtered1;
         const keyword2 = searchInput2.value.trim().toLowerCase();
         let filtered2 = tempFilteredData;
         if (keyword2) {
+          // ค้นหาในทุกคอลัมน์สำหรับ Filter 2 (จาก tempFilteredData)
           filtered2 = tempFilteredData.filter((row) => {
-            return (
-              (row["Description"] || "").toLowerCase().includes(keyword2) ||
-              (row["หมายเหตุ"] || "").toLowerCase().includes(keyword2) ||
-              (row["Rebuilt"] || "").toLowerCase().includes(keyword2) ||
-              (row["OCRTAXT"] || "").toLowerCase().includes(keyword2)
-            );
+            const searchFields = ["Material", "Description", "Product", "OCRTAXT", "หมายเหตุ", "Rebuilt", "วิภาวดี", "Unrestricted"];
+            return searchFields.some(field => (row[field] || "").toLowerCase().includes(keyword2));
           });
         }
         currentFilteredData = filtered2;
@@ -3890,24 +3886,20 @@
         const keyword1 = searchInputImages1.value.trim().toLowerCase();
         let filtered1 = allDataImages;
         if (keyword1) {
+          // ค้นหาในทุกคอลัมน์สำหรับ Filter 1
           filtered1 = allDataImages.filter((row) => {
-            return (
-              (row["Material"] || "").toLowerCase().includes(keyword1) ||
-              (row["Product"] || "").toLowerCase().includes(keyword1)
-            );
+            const searchFields = ["Material", "Description", "Product", "OCRTAXT", "หมายเหตุ", "Rebuilt", "วิภาวดี", "Unrestricted"];
+            return searchFields.some(field => (row[field] || "").toLowerCase().includes(keyword1));
           });
         }
         tempFilteredDataImages = filtered1;
         const keyword2 = searchInputImages2.value.trim().toLowerCase();
         let filtered2 = tempFilteredDataImages;
         if (keyword2) {
+          // ค้นหาในทุกคอลัมน์สำหรับ Filter 2 (จาก tempFilteredDataImages)
           filtered2 = tempFilteredDataImages.filter((row) => {
-            return (
-              (row["Description"] || "").toLowerCase().includes(keyword2) ||
-              (row["หมายเหตุ"] || "").toLowerCase().includes(keyword2) ||
-              (row["Rebuilt"] || "").toLowerCase().includes(keyword2) ||
-              (row["OCRTAXT"] || "").toLowerCase().includes(keyword2)
-            );
+            const searchFields = ["Material", "Description", "Product", "OCRTAXT", "หมายเหตุ", "Rebuilt", "วิภาวดี", "Unrestricted"];
+            return searchFields.some(field => (row[field] || "").toLowerCase().includes(keyword2));
           });
         }
         currentFilteredDataImages = filtered2;
