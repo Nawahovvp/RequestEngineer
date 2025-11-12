@@ -2552,6 +2552,9 @@
     <script>
       // Global employee data
       let employeeData = [];
+      // Global search values for syncing between parts and images tabs
+      let globalSearch1 = '';
+      let globalSearch2 = '';
       // Theme Management
       function setTheme(theme) {
         localStorage.setItem('theme', theme);
@@ -2718,8 +2721,12 @@
         );
         if (clickedButton) clickedButton.classList.add("active");
         if (tabId === "parts") {
+          document.getElementById('searchInput1').value = globalSearch1;
+          document.getElementById('searchInput2').value = globalSearch2;
           loadData();
         } else if (tabId === "images") {
+          document.getElementById('searchInputImages1').value = globalSearch1;
+          document.getElementById('searchInputImages2').value = globalSearch2;
           loadImagesData();
         } else if (tabId === "today") {
           loadTodayData();
@@ -3620,8 +3627,16 @@
         renderTableData();
         renderPagination(currentFilteredData.length);
       }
-      searchInput1.addEventListener("input", applyFilters);
-      searchInput2.addEventListener("input", applyFilters);
+      searchInput1.addEventListener("input", (e) => {
+        globalSearch1 = e.target.value;
+        document.getElementById("searchInputImages1").value = globalSearch1;
+        applyFilters();
+      });
+      searchInput2.addEventListener("input", (e) => {
+        globalSearch2 = e.target.value;
+        document.getElementById("searchInputImages2").value = globalSearch2;
+        applyFilters();
+      });
       searchButton.addEventListener("click", applyFilters);
       searchInput1.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
@@ -3907,8 +3922,16 @@
         renderTableDataImages();
         renderPaginationImages(currentFilteredDataImages.length);
       }
-      searchInputImages1.addEventListener("input", applyFiltersImages);
-      searchInputImages2.addEventListener("input", applyFiltersImages);
+      searchInputImages1.addEventListener("input", (e) => {
+        globalSearch1 = e.target.value;
+        document.getElementById("searchInput1").value = globalSearch1;
+        applyFiltersImages();
+      });
+      searchInputImages2.addEventListener("input", (e) => {
+        globalSearch2 = e.target.value;
+        document.getElementById("searchInput2").value = globalSearch2;
+        applyFiltersImages();
+      });
       searchButtonImages.addEventListener("click", applyFiltersImages);
       searchInputImages1.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
